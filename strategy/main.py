@@ -2,15 +2,16 @@ from warnings import simplefilter
 
 simplefilter(action='ignore', category=FutureWarning)
 
-import pandas as pd
 import PySimpleGUI as sg
-import os, json, base64
+import os, json, csv, base64
 from get_symbols import get_tradeable_symbols
 from store_prices import store_price_history
 from cointegration import get_cointegrated_pairs
 from plot_trends import plot
 
-#sg.set_options(icon=base64.b64encode(open(r'/home/bdsw3207/Code/Statistical Arbitrage/bot/strategy/icon.png', 'rb').read()))
+sg.set_options(icon=base64.b64encode(open(r'/home/bdsw3207/Code/Statistical Arbitrage/bot/strategy/icon.png', 'rb').read()))
+sg.theme('BlueMono')
+
 os.system('')
 
 class style():
@@ -25,8 +26,42 @@ class style():
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'    
 
+def table_csv():
+    filename = sg.popup_get_file('CSV to preview', no_window=True, file_types=(('CSV Files','*.csv'),))
+    if filename == '':
+        return
+    data = []
+    header_list = []
+    button = sg.popup_yes_no('Does this file have column names already?')
+    if filename is not None:
+        with open(filename, 'r') as infile:
+            reader = csv.reader(infile)
+            if button == 'Yes':
+                header_list = next(reader)
+            try:
+                data = list(reader)  # read everything else into a list of rows
+                if button == 'No':
+                    header_list = ['column' + str(x) for x in range(len(data[0]))]
+            except:
+                sg.popup_error('Error reading file')
+                return
+            
+    sg.set_options(element_padding=(0, 0))
+
+    layout = [[sg.Table(values=data,
+                            headings=header_list,
+                            max_col_width=25,
+                            auto_size_columns=True,
+                            justification='right',
+                            num_rows=min(len(data), 20))]]
+
+
+    window = sg.Window('Preview CSV', layout, grab_anywhere=False)
+    event, values = window.read()
+
+    window.close()    
+
 def make_window():
-    sg.theme('BlueMono')
     right_click_menu_def = [[], ['About', 'Exit']]
     
     logging_layout = [[sg.Text("Output")],
@@ -51,7 +86,7 @@ def make_window():
     plot_layout = [[sg.Text('Plot trends and save for backtesting')],
                    [sg.Text('Enter the first symbol:')],
                    [sg.Input(key='symbol1')],
-                   [sg.Text('Enter the first symbol:')],
+                   [sg.Text('Enter the second symbol:')],
                    [sg.Input(key='symbol2')],
                    [sg.Text('Enter JSON filename with pairs from the previous window')],
                    [sg.Button('Browse File')],
@@ -59,12 +94,16 @@ def make_window():
                    [sg.Input(key='filename_backtest')],               
                    [sg.Button('Plot')]]
     
+    csv_preview_layout = [[sg.Text('Browse CSV file you want to preview')],
+                          [sg.Button('Browse CSV')]]
+    
     layout = [[sg.Text('Statistical Arbitrage -  ByBit', size=(38, 1), justification='center', font=("Helvetica", 16), relief=sg.RELIEF_RIDGE, k='-TEXT HEADING-', enable_events=True)]]
     
     layout += [[sg.TabGroup([[  sg.Tab('Output', logging_layout),
                                 sg.Tab('Get Symbols', get_symbols_layout),
                                 sg.Tab('Cointegration Check', cointegration_layout),
-                                sg.Tab('Plot', plot_layout)]], 
+                                sg.Tab('Plot', plot_layout),
+                                sg.Tab('Preview CSV', csv_preview_layout)]], 
                             key='-TAB GROUP-', expand_x=True, expand_y=True), ]]
     
     layout[-1].append(sg.Sizegrip())
@@ -77,9 +116,9 @@ def main():
     window = make_window()
     
     while True: 
-        event, values = window.read(timeout=100)
+        event, values = window.read()
         if event not in (sg.TIMEOUT_EVENT, sg.WIN_CLOSED):
-            print('============ ', event, ' ==============')
+            pass
         if event in (None, 'Exit'):
             break                     
         elif event == 'About':
@@ -109,7 +148,9 @@ def main():
         elif event == 'Browse File':
             file_from = sg.popup_get_file('Choose your file')#, keep_on_top=True)  
         elif event == 'Browse File1':
-            file_from = sg.popup_get_file('Choose your file')#, keep_on_top=True)              
+            file_from = sg.popup_get_file('Choose your file')#, keep_on_top=True) 
+        elif event == 'Browse CSV':
+            table_csv()              
         elif event == 'Check Cointegration':
             #file_from = values['filename_from_cointegration']
             file_name = values['filename_to_cointegration']
@@ -156,58 +197,3 @@ def main():
 # Entry point
 if __name__ == '__main__':
     main()
-    # # # Get tradeable symbols
-    # print(style.GREEN)
-    # print('Getting symbols...')
-    # print(style.WHITE)
-    
-    # # symbols_response = get_tradeable_symbols()
-    
-    # # # Construct and save price history
-    # # print(style.GREEN)
-    # # print('Constructing and saving data price to JSON...')
-    # # print(style.WHITE)
-    
-    # # if len(symbols_response) > 0:
-    # #     store_price_history(symbols_response)
-    # # else:
-    # #     print(style.RED)
-    # #     print(f'Found {len(symbols_response)} tradeable items')
-    # #     print(style.WHITE)
-    
-    # # # Find cointegrated pairs
-    # print(style.BLUE)
-    # file_name = input('File name: ')
-    # # print(f'Calculating cointegration for data in file {file_name}...')
-    # print(style.WHITE)
-    
-    
-    # with open(f'./{file_name}', 'r') as file:
-    #     price_data = json.load(file)
-    #     if len(price_data) > 0:
-    #         cointegrated_pairs, filename = get_cointegrated_pairs(price_data)
-    #         print(style.GREEN)
-    #         print(f'Data computed succesfully! Saved in {filename}')
-    #         print(style.WHITE)
-    #     else:
-    #         print(style.RED)
-    #         print('Something went wrong with your list of prices! Check JSON file')
-    #         print(style.WHITE)
-            
-    # # Plot trends and save for backtesting
-    # print(style.BLUE)
-    # print('Plotting trends...')
-    # print(style.WHITE)
-    
-    # print(style.YELLOW)
-    # symbol1 = input('Please enter the first symbol: ')
-    # symbol2 = input('Please enter the second symbol: ')
-    
-    # print(style.BLUE)
-    # print(f'Plotting trends for {symbol1}-{symbol2}')
-    # print(style.WHITE)
-    
-    # with open(file_name, 'r') as file:
-    #     price_data = json.load(file)
-    #     if len(price_data) > 0:
-    #         plot(symbol1, symbol2, price_data)    
