@@ -1,4 +1,11 @@
-from config_strategy import session
+import json
+from pybit import HTTP
+
+# Import API URL from settings.json
+with open('./settings.json', 'r') as f:
+    data = json.load(f)
+
+session = HTTP(data['apiURL'])
 
 class style():
     BLACK = '\033[30m'

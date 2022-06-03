@@ -1,9 +1,13 @@
 import pandas as pd
 import numpy as np
-import math
+import math, json
 import statsmodels.api as sm
 from statsmodels.tsa.stattools import coint
-from config_strategy import z_score_window
+
+with open('./settings.json', 'r') as f:
+    data = json.load(f)
+
+z_score_window = int(data['zscoreWindow'])
 
 # Calculate Z-Score
 def calculate_zscore(spread):

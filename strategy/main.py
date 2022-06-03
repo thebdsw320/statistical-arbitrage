@@ -7,6 +7,7 @@ import os, json, csv, base64
 from get_symbols import get_tradeable_symbols
 from store_prices import store_price_history
 from cointegration import get_cointegrated_pairs
+from backtest import update_data, retrieve_data, update_values
 from plot_trends import plot
 
 sg.set_options(icon=base64.b64encode(open(r'/home/bdsw3207/Code/Statistical Arbitrage/bot/strategy/icon.png', 'rb').read()))
@@ -60,7 +61,17 @@ def table_csv():
     event, values = window.read()
 
     window.close()    
+    
+def table_backtest():
+    headings, data = retrieve_data()
+    
+    layout = [[sg.Table(values=data, headings=headings, auto_size_columns=True, justification='right')]]
+    
+    window = sg.Window('Backtest - Mean Reversion', layout, grab_anywhere=True)
+    event, values = window.read()
 
+    window.close()
+    
 def make_window():
     right_click_menu_def = [[], ['About', 'Exit']]
     
@@ -96,14 +107,33 @@ def make_window():
     
     csv_preview_layout = [[sg.Text('Browse CSV file you want to preview')],
                           [sg.Button('Browse CSV')]]
+
+    backtest_layout = [[sg.Text('Browse CSV file from previous step to perform backtest')],
+                       [sg.Button('Browse file')],
+                       [sg.Button('Update data')],
+                       [sg.Text('Enter Z-Score Threshold')],
+                       [sg.Input(key='z_score_threshold')],
+                       [sg.Text('Enter Trading Capital')],
+                       [sg.Input(key='trading_capital')],
+                       [sg.Text('Enter Rebate')],
+                       [sg.Input(key='rebate')],
+                       [sg.Text('Enter Slippage Assumption')],
+                       [sg.Input(key='slippage_assumption')],
+                       [sg.Text('Long when Z-Score Negative')],
+                       [sg.Combo(values=('Sym_1', 'Sym_2'), default_value='Sym_1', readonly=True, k='symbol_option')],
+                       [sg.Text('Many opens')],
+                       [sg.Combo(values=('No', 'Yes'), default_value='No', readonly=True, k='many_opens_option')],
+                       [sg.Button('Update values')],
+                       [sg.Button('Run Backtest')]]
     
-    layout = [[sg.Text('Statistical Arbitrage -  ByBit', size=(38, 1), justification='center', font=("Helvetica", 16), relief=sg.RELIEF_RIDGE, k='-TEXT HEADING-', enable_events=True)]]
+    layout = [[sg.Text('Statistical Arbitrage -  Strategy', size=(38, 1), justification='center', font=("Helvetica", 16), relief=sg.RELIEF_RIDGE, k='-TEXT HEADING-', enable_events=True)]]
     
     layout += [[sg.TabGroup([[  sg.Tab('Output', logging_layout),
                                 sg.Tab('Get Symbols', get_symbols_layout),
                                 sg.Tab('Cointegration Check', cointegration_layout),
                                 sg.Tab('Plot', plot_layout),
-                                sg.Tab('Preview CSV', csv_preview_layout)]], 
+                                sg.Tab('Preview CSV', csv_preview_layout),
+                                sg.Tab('Backtest', backtest_layout)]], 
                             key='-TAB GROUP-', expand_x=True, expand_y=True), ]]
     
     layout[-1].append(sg.Sizegrip())
@@ -150,7 +180,9 @@ def main():
         elif event == 'Browse File1':
             file_from = sg.popup_get_file('Choose your file')#, keep_on_top=True) 
         elif event == 'Browse CSV':
-            table_csv()              
+            table_csv()        
+        elif event == 'Browse file':
+            file_csv = sg.popup_get_file('Choose your file')      
         elif event == 'Check Cointegration':
             #file_from = values['filename_from_cointegration']
             file_name = values['filename_to_cointegration']
@@ -190,7 +222,20 @@ def main():
                 price_data = json.load(file)
                 if len(price_data) > 0:
                     plot(symbol1, symbol2, price_data, file_name)            
-                             
+        elif event == 'Update data':
+            update_data(file_csv)
+            print(style.GREEN)
+            print('Data updated - ' + file_csv)
+            print(style.WHITE)
+        elif event == 'Update values':
+            zscore_threshold, trading_capital, rebate, slippage_assumption, long_when_zscore_negative, many_opens = values['z_score_threshold'], values['trading_capital'], values['rebate'], values['slippage_assumption'], values['symbol_option'], values['many_opens_option']
+            update_values(zscore_threshold, trading_capital, rebate, slippage_assumption, long_when_zscore_negative, many_opens)
+            print(style.GREEN)
+            print('Values updated')
+            print(style.WHITE)
+        elif event == 'Run Backtest':
+            table_backtest()
+            
     window.close()
     exit(0)              
      

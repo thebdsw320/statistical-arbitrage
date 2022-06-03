@@ -2,3 +2,4 @@
 *.csv
 /strategy/__pycache__
 /execution/__pycache__
+*.xlsx

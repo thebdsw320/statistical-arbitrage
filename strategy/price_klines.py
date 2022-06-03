@@ -4,9 +4,16 @@
     limit: max size of 200
 """
 
+from pybit import HTTP
 from code import interact
-from config_strategy import session, timeframe, kline_limit
-import datetime, time
+import datetime, time, json
+
+with open('./settings.json', 'r') as f:
+    data = json.load(f)
+
+session = HTTP(data['apiURL'])
+timeframe = int(data['timeframe'])
+kline_limit = int(data['klineLimit'])
 
 time_start_date = 0
 
