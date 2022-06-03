@@ -1,0 +1,9 @@
+{
+    "mode": "Testnet",
+    "timeframe": "60",
+    "klineLimit": "200",
+    "zscoreWindow": "21",
+    "apiPublicKey": "G0Rka13trfjPgvsa6i",
+    "apiPrivateKey": "4lF8QONFUIVClWf6jZmVzH2YWhySrFSAfAar",
+    "apiURL": "https://api-testnet.bybit.com"
+}

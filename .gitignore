@@ -1,4 +1,4 @@
-*.json
+price_list.json
 *.csv
 /strategy/__pycache__
 /execution/__pycache__
