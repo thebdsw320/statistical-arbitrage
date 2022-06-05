@@ -27,7 +27,7 @@ def get_tradeable_symbols():
     if symbols['ret_msg'] == 'OK':
         symbols = symbols['result']
         for symbol in symbols:
-            if (symbol['quote_currency'] == 'USDT') and (symbol['status'] == 'Trading'): #and (float(symbol['maker_fee']) < 0) :
+            if (symbol['quote_currency'] == 'USDT') and (symbol['status'] == 'Trading') and (float(symbol['maker_fee']) < 0):
                 symbols_list.append(symbol)
     
     print(style.BLUE)

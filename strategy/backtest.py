@@ -1,5 +1,16 @@
 from openpyxl import load_workbook
+import pyautogui as pag
+import os, time
 import pandas as pd
+
+def save_excel():
+    os.system('wps backtest.xlsx &')
+    time.sleep(7)
+    pag.moveTo(800, 500)
+    pag.click()
+    pag.hotkey('ctrl', 's')
+    time.sleep(3)
+    pag.hotkey('alt', 'f4')
 
 def update_data(pair_csv):
     wb = load_workbook(filename='./backtest.xlsx')
@@ -27,6 +38,8 @@ def update_values(zscore_threshold, trading_capital, rebate, slippage_assumption
     wb.save(filename='./backtest.xlsx')
     
 def retrieve_data():
+    save_excel()
+    
     wb = load_workbook(filename='./backtest.xlsx', data_only=True)
     sheet = wb['mean_reverting']
     
