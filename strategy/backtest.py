@@ -1,19 +1,21 @@
 from openpyxl import load_workbook
 import pyautogui as pag
-import os, time
+import os, time, subprocess
 import pandas as pd
 
+file = "" # Check documentation for formatting file route
+
 def save_excel():
-    os.system('wps backtest.xlsx &')
+    subprocess.Popen(file)
     time.sleep(7)
     pag.moveTo(800, 500)
     pag.click()
     pag.hotkey('ctrl', 's')
-    time.sleep(3)
+    time.sleep(2)
     pag.hotkey('alt', 'f4')
 
 def update_data(pair_csv):
-    wb = load_workbook(filename='./backtest.xlsx')
+    wb = load_workbook(filename='backtest.xlsx')
     sheet = wb['mean_reverting']
     pair_data = pd.read_csv(pair_csv)
     
@@ -29,10 +31,10 @@ def update_data(pair_csv):
         n = i+2
         sheet[f'C{n}'] = v
         
-    wb.save(filename='./backtest.xlsx')
+    wb.save(filename='backtest.xlsx')
 
 def update_values(zscore_threshold, trading_capital, rebate, slippage_assumption, long_when_zscore_negative, many_opens):
-    wb = load_workbook(filename='./backtest.xlsx')
+    wb = load_workbook(filename='backtest.xlsx')
     sheet = wb['mean_reverting']
     sheet['AH1'], sheet['AH2'], sheet['AH3'], sheet['AH4'], sheet['AH5'], sheet['AH6'] = float(zscore_threshold), float(trading_capital), float(rebate), float(slippage_assumption), long_when_zscore_negative, many_opens
     wb.save(filename='./backtest.xlsx')
@@ -40,7 +42,7 @@ def update_values(zscore_threshold, trading_capital, rebate, slippage_assumption
 def retrieve_data():
     save_excel()
     
-    wb = load_workbook(filename='./backtest.xlsx', data_only=True)
+    wb = load_workbook(filename='backtest.xlsx', data_only=True)
     sheet = wb['mean_reverting']
     
     longs_profit, shorts_profit, net_profit = sheet['AH8'].value, sheet['AH9'].value, sheet['AH10'].value

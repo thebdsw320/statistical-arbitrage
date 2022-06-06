@@ -10,7 +10,7 @@ from close_positions import close_all_positions
 from get_zscore import get_latest_zscore
 from save_status import save_status
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
     
 signal_positive_ticker = data['signalPositiveTicker']

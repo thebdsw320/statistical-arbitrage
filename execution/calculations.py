@@ -1,6 +1,6 @@
 import json, math
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
 
 ticker1 = data['ticker1']

@@ -2,7 +2,7 @@ import json, time, datetime
 from calculations import extract_close_prices
 from pybit import HTTP
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
     
 ticker1 = data['ticker1']

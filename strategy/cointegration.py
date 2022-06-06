@@ -4,7 +4,7 @@ import math, json
 import statsmodels.api as sm
 from statsmodels.tsa.stattools import coint
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
 
 z_score_window = int(data['zscoreWindow'])

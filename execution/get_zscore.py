@@ -5,7 +5,7 @@ from calculations import get_trade_details
 from price_calls import get_latest_klines
 from stats import calculate_metrics
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
 
 # Get latest z-score 

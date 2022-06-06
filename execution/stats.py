@@ -3,7 +3,7 @@ import statsmodels.api as sm
 import pandas as pd
 import json
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
     
 zscore_window = int(data['zscoreWindow'])

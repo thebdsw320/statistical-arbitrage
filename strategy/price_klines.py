@@ -8,7 +8,7 @@ from pybit import HTTP
 from code import interact
 import datetime, time, json
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
 
 session = HTTP(data['apiURL'])

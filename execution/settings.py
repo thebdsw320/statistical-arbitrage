@@ -1,9 +1,10 @@
-from logging import exception
 import PySimpleGUI as sg
-import json, time, multiprocessing
+import json, time, multiprocessing, os
 from main import exec
 
 sg.theme('BlueMono')
+
+os.system('')
 
 class style():
     BLACK = '\033[30m'
@@ -21,7 +22,7 @@ def update_settings(mode, ticker1, ticker2, signal_positive_ticker, signal_negat
     api_url = "https://api-testnet.bybit.com" if mode == "Testnet" else "https://api.bybit.com"
     ws_public_url = "wss://stream-testnet.bybit.com/realtime_public" if mode == "Testnet" else "wss://stream.bybit.com/realtime_public"
     
-    f = open('./settings.json', 'r')
+    f = open('settings.json', 'r')
     data = json.load(f)
         
     data['mode'] = mode
@@ -45,7 +46,7 @@ def update_settings(mode, ticker1, ticker2, signal_positive_ticker, signal_negat
     data['stopLossFailSafe'] = stop_loss_fail_safe
     data['signalTriggerThresh'] = signal_trigger_thresh
     
-    f = open('./settings.json', 'w')
+    f = open('settings.json', 'w')
     json.dump(data, f, indent=4)
     f.close()
 

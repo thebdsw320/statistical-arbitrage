@@ -1,7 +1,7 @@
 import json
 from pybit import HTTP
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
     
 api_key = data['apiKey']

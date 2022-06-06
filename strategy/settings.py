@@ -29,7 +29,7 @@ def update_settings(mode, timeframe, kline_limit, zscore_window, api_public, api
     data['apiPrivateKey'] = api_private
     data['apiURL'] = api_url
     
-    f = open('./settings.json', 'w')
+    f = open('settings.json', 'w')
     json.dump(data, f, indent=4)
     f.close()
     

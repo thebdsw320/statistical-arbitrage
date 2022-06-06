@@ -3,7 +3,7 @@ from pybit import HTTP
 from ws_connect import ws_public
 from calculations import get_trade_details
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
     
 api_key = data['apiKey']

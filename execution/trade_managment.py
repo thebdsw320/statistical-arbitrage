@@ -5,7 +5,7 @@ from order_review import check_order
 from pybit import HTTP
 import time, json
 
-with open('./settings.json', 'r') as f:
+with open('settings.json', 'r') as f:
     data = json.load(f)
     
 api_key = data['apiKey']
