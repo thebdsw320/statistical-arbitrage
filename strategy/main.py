@@ -10,7 +10,6 @@ from cointegration import get_cointegrated_pairs
 from backtest import update_data, retrieve_data, update_values
 from plot_trends import plot
 
-sg.set_options(icon=base64.b64encode(open(r'/home/bdsw3207/Code/Statistical Arbitrage/bot/strategy/icon.png', 'rb').read()))
 sg.theme('BlueMono')
 
 os.system('')
