@@ -137,8 +137,8 @@ def main():
             break
         # Execute bot
         elif event == 'Execute':
-            time.sleep(5)
-            execution_process = multiprocessing.Process(name='execution', target=execution)
+            time.sleep(1)
+            execution_process = multiprocessing.Process(name='execution', target=execution, daemon=True)
             execution_process.start()
 
     window.close()

@@ -9,7 +9,7 @@ with open('./settings.json', 'r') as f:
 api_key = data['apiKey']
 api_secret = data['apiSecret']
 api_url = data['apiURL']
-limit_order_basis = False#bool(data['limitOrderBasis'])
+limit_order_basis = False
 
 session_private = HTTP(api_url, api_key=api_key, api_secret=api_secret)
 

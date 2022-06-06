@@ -61,7 +61,7 @@ def exec():
     
     while True:
         # Pause - Protect API
-        time.sleep(3)
+        time.sleep(2)
         
         # Check if open trades already exist
         is_p_ticker_open = open_position_confirmation(signal_positive_ticker)
@@ -106,4 +106,4 @@ def exec():
             kill_switch = close_all_positions(kill_switch)
 
             # Sleep 5 seconds
-            time.sleep(5)    
+            time.sleep(3)    

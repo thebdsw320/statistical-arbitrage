@@ -140,8 +140,8 @@ def manage_new_trades(kill_switch):
                         order_status_short = check_order(short_ticker, order_short_id, remaining_capital_short, 'Short')
 
                     print(style.BLUE)
-                    print(f'Order Status Long: {order_status_long}')
-                    print(f'Order Status Short: {order_status_short}')
+                    print(f'Order Status Long {long_ticker}: {order_status_long}')
+                    print(f'Order Status Short {short_ticker}: {order_status_short}')
                     print(f'New Z-Score: {zscore_new}')
                     print(style.WHITE)
 
