@@ -2,6 +2,17 @@ from position_calls import get_active_positions, get_open_positions, query_exist
 from calculations import get_trade_details
 from ws_connect import ws_public
 
+class style():
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m'
 
 # Check order items
 def check_order(ticker, order_id, remaining_capital, direction='Long'):
@@ -22,8 +33,11 @@ def check_order(ticker, order_id, remaining_capital, direction='Long'):
     # active_order_price, active_order_quantity = get_active_positions(ticker)
 
     # Determine action - trade complete - stop placing orders
-    if position_quantity >= remaining_capital and position_quantity > 0:
-        print(f'Position_quantity {position_quantity}', f'Remaining_capital {remaining_capital}')
+    if (position_quantity*position_price) >= remaining_capital and position_quantity > 0:
+        print(style.MAGENTA)
+        print(f'Position Quantity {ticker}: {position_quantity}')
+        print(f'Remaining Capital {ticker}: {remaining_capital}')
+        print(style.WHITE)
         
         return 'Trade Complete'
 

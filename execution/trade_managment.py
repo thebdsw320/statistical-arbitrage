@@ -13,11 +13,23 @@ api_secret = data['apiSecret']
 api_url = data['apiURL']
 
 session_private = HTTP(api_url, api_key=api_key, api_secret=api_secret)
-limit_order_basis = data['limitOrderBasis']
-tradeable_capital_usdt = data['tradeableCapitalUSDT']
-signal_trigger_thresh = data['signalTriggerThresh']
+limit_order_basis = bool(data['limitOrderBasis'])
+tradeable_capital_usdt = float(data['tradeableCapitalUSDT'])
+signal_trigger_thresh = float(data['signalTriggerThresh'])
 signal_negative_ticker = data['signalNegativeTicker']
 signal_positive_ticker = data['signalPositiveTicker']
+
+class style():
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m'
 
 # Manage new trade assessment and order placing
 def manage_new_trades(kill_switch):
@@ -32,17 +44,16 @@ def manage_new_trades(kill_switch):
     zscore, signal_sign_positive = get_latest_zscore()
 
     # Switch to hot if meets signal threshold
-    # Note: You can add in coint-flag check too if you want extra vigilence
     if abs(zscore) > signal_trigger_thresh:
-
         # Active hot trigger
         hot = True
+        print(style.YELLOW)
         print('-- Trade Status HOT --')
         print('-- Placing and Monitoring Existing Trades --')
+        print(style.WHITE)
 
     # Place and manage trades
     if hot and kill_switch == 0:
-
         # Get trades history for liquidity
         avg_liquidity_ticker_p, last_price_p = get_ticker_trade_liquidity(signal_positive_ticker)
         avg_liquidity_ticker_n, last_price_n = get_ticker_trade_liquidity(signal_negative_ticker)
@@ -88,8 +99,8 @@ def manage_new_trades(kill_switch):
         order_status_short = ''
         counts_long = 0
         counts_short = 0
+        
         while kill_switch == 0:
-
             # Place order - long
             if counts_long == 0:
                 order_long_id = initialise_order_execution(long_ticker, 'Long', initial_capital_usdt)
@@ -117,9 +128,9 @@ def manage_new_trades(kill_switch):
 
             # Check limit orders and ensure z_score is still within range
             zscore_new, signal_sign_p_new = get_latest_zscore()
+            
             if kill_switch == 0:
                 if abs(zscore_new) > signal_trigger_thresh * 0.9 and signal_sign_p_new == signal_sign_positive:
-
                     # Check long order status
                     if counts_long == 1:
                         order_status_long = check_order(long_ticker, order_long_id, remaining_capital_long, 'Long')
@@ -128,7 +139,11 @@ def manage_new_trades(kill_switch):
                     if counts_short == 1:
                         order_status_short = check_order(short_ticker, order_short_id, remaining_capital_short, 'Short')
 
-                    print(order_status_long, order_status_short, zscore_new)
+                    print(style.BLUE)
+                    print(f'Order Status Long: {order_status_long}')
+                    print(f'Order Status Short: {order_status_short}')
+                    print(f'New Z-Score: {zscore_new}')
+                    print(style.WHITE)
 
                     # If orders still active, do nothing
                     if order_status_long == 'Order Active' or order_status_short == 'Order Active':

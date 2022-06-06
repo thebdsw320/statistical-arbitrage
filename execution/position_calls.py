@@ -74,7 +74,7 @@ def get_active_positions(ticker):
         if active_order['ret_msg'] == 'OK':
             if active_order['result']['data'] != None:
                 order_price = active_order['result']['data'][0]['price']
-                order_quantity = active_order['result']['data'][0]['quantity']
+                order_quantity = active_order['result']['data'][0]['qty']
                 
                 return order_price, order_quantity
             

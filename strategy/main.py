@@ -27,6 +27,7 @@ class style():
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'    
 
+# Function to display csv in GUI
 def table_csv():
     filename = sg.popup_get_file('CSV to preview', no_window=True, file_types=(('CSV Files','*.csv'),))
     if filename == '':
@@ -62,6 +63,7 @@ def table_csv():
 
     window.close()    
     
+# Function to display csv table with backtest data
 def table_backtest():
     headings, data = retrieve_data()
     
@@ -72,9 +74,12 @@ def table_backtest():
 
     window.close()
     
+# Make window 
 def make_window():
+    # Define right click menu
     right_click_menu_def = [[], ['About', 'Exit']]
     
+    # Define layouts
     logging_layout = [[sg.Text("Output")],
                       [sg.Multiline(
                                     size=(60,15), font='Courier 8', expand_x=True, expand_y=True, write_only=True, 
@@ -126,6 +131,7 @@ def make_window():
                        [sg.Button('Update values')],
                        [sg.Button('Run Backtest')]]
     
+    # Set layouts
     layout = [[sg.Text('Statistical Arbitrage -  Strategy', size=(38, 1), justification='center', font=("Helvetica", 16), relief=sg.RELIEF_RIDGE, k='-TEXT HEADING-', enable_events=True)]]
     
     layout += [[sg.TabGroup([[  sg.Tab('Output', logging_layout),
@@ -137,15 +143,19 @@ def make_window():
                             key='-TAB GROUP-', expand_x=True, expand_y=True), ]]
     
     layout[-1].append(sg.Sizegrip())
+    
+    # Set window
     window = sg.Window('Statistical Arbitrage - ByBit', layout, right_click_menu=right_click_menu_def, right_click_menu_tearoff=True, grab_anywhere=True, resizable=True, margins=(0,0), use_custom_titlebar=True, finalize=True)#, keep_on_top=True)
     
     window.set_min_size(window.size)
     return window
 
 def main():
+    # Get window
     window = make_window()
     
     while True: 
+        # Read values
         event, values = window.read()
         if event not in (sg.TIMEOUT_EVENT, sg.WIN_CLOSED):
             pass
@@ -161,14 +171,14 @@ def main():
             print(style.GREEN)
             print('Getting symbols...')
             print(style.WHITE)  
-             
+            # Get tradeable symbols
             symbols_response = get_tradeable_symbols()
             file_name = values['filename_symbols']
             
             print(style.GREEN)
             print('Constructing and saving data price to JSON...')
             print(style.WHITE) 
-             
+            # Store prices in JSON file
             if len(symbols_response) > 0:
                 store_price_history(symbols_response, file_name)
             else:
@@ -176,15 +186,14 @@ def main():
                 print(f'Found {len(symbols_response)} tradeable items')
                 print(style.WHITE)
         elif event == 'Browse File':
-            file_from = sg.popup_get_file('Choose your file')#, keep_on_top=True)  
+            file_from = sg.popup_get_file('Choose your file', no_window=True, file_types=(('JSON Files','*.json'),)) 
         elif event == 'Browse File1':
-            file_from = sg.popup_get_file('Choose your file')#, keep_on_top=True) 
+            file_from = sg.popup_get_file('Choose your file', no_window=True, file_types=(('JSON Files','*.json'),))  
         elif event == 'Browse CSV':
             table_csv()        
         elif event == 'Browse file':
-            file_csv = sg.popup_get_file('Choose your file')      
+            file_csv = sg.popup_get_file('Choose your file', no_window=True, file_types=(('CSV Files','*.csv'),))       
         elif event == 'Check Cointegration':
-            #file_from = values['filename_from_cointegration']
             file_name = values['filename_to_cointegration']
 
             print(style.BLUE)
@@ -192,7 +201,7 @@ def main():
             print(style.WHITE) 
             
             file_name = values['filename_to_cointegration']
-            
+            # Open price list for cointegration review
             with open(f'{file_from}', 'r') as file:
                 price_data = json.load(file)
                 
@@ -206,6 +215,7 @@ def main():
                     print('Something went wrong with your list of prices! Check JSON file')
                     print(style.WHITE)  
         elif event == 'Plot':
+            # Plot trends for backtesting
             print(style.BLUE)
             print('Plotting trends...')
             print(style.WHITE)
@@ -217,17 +227,19 @@ def main():
             print(style.BLUE)
             print(f'Plotting trends for {symbol1}-{symbol2}')
             print(style.WHITE)
-            
+            # Open JSON file with price data
             with open(file_from, 'r') as file:
                 price_data = json.load(file)
                 if len(price_data) > 0:
                     plot(symbol1, symbol2, price_data, file_name)            
         elif event == 'Update data':
+            # Update data in backtest tab
             update_data(file_csv)
             print(style.GREEN)
             print('Data updated - ' + file_csv)
             print(style.WHITE)
         elif event == 'Update values':
+            # Update values in backtest tab
             zscore_threshold, trading_capital, rebate, slippage_assumption, long_when_zscore_negative, many_opens = values['z_score_threshold'], values['trading_capital'], values['rebate'], values['slippage_assumption'], values['symbol_option'], values['many_opens_option']
             update_values(zscore_threshold, trading_capital, rebate, slippage_assumption, long_when_zscore_negative, many_opens)
             print(style.GREEN)

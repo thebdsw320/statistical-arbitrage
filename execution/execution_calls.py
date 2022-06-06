@@ -24,13 +24,10 @@ def set_leverage(ticker):
             sell_leverage=1
         )
     except Exception as e:
-        print(e)
         pass
     
     # Return 
     return
-
-set_leverage('MATICUSDT')
 
 # Place limit or market order
 def place_order(ticker, price, quantity, direction, stop_loss):
