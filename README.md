@@ -13,6 +13,8 @@
     - [Estrategia - Configuración](#estrategia---configuración)
     - [Estrategia - Ejecución](#estrategia---ejecución)
     - [Ejecución](#ejecución)
+  - [Bot V2](#bot-v2)
+    - [Ejecución V2](#ejecución-v2)
 
 ## ¿Qué se necesita para que funcione?
 
@@ -172,3 +174,13 @@ Una vez que lo ejecutes, aparecerá lo siguiente:
 Ahí lo llenas con los datos necesarios que agarraste del paso anterior y listo, clickeas en *Save Settings* para guardar los datos. Para la ejecución pasas a la *tab* de *Execution* y está listo para correr:
 
 <img src='./assets/main3.png'>
+
+## Bot V2
+
+### Ejecución V2
+
+El bot V2 comparte muchas cosas con el bot V1 antes mencionado y explicado, por tanto no hay mucho que recalcar en el, simplemente se encarga de hacer de otra forma los trades: checa todas las posiciones abiertas y el P&L neto, cierra todas las posiciones si el Z-Score no es relevante para la operación o el rendimiento del P&L no está siendo relevante, checa cuánto capital se invierte y abre nuevas posiciones, todo esto repitiendo cada cierto periodo de tiempo.
+
+Simplemente en la configuración, abriendo el mismo archivo ```settings.py``` encontrarás un recuadro en donde vienen las configuraciones extra (no requeridas si usas el bot v1, el anterior antes explicado y mencionado) y en la tab de *Execution* verás que está la opción de correr una versión u otra, si deseas la v2 simplemente dale en los botones correspondientes.
+
+>> Usa la versión v2 si es más conveniente para tu estrategia o si tienes algún problema con la v1.
