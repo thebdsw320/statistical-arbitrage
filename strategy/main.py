@@ -2,13 +2,14 @@ from warnings import simplefilter
 
 simplefilter(action='ignore', category=FutureWarning)
 
+import pandas as pd
 import PySimpleGUI as sg
-import os, json, csv, base64
+import os, json, csv
 from get_symbols import get_tradeable_symbols
 from store_prices import store_price_history
 from cointegration import get_cointegrated_pairs
 from backtest import update_data, retrieve_data, update_values
-from plot_trends import plot
+from plot_trends import plot, save_data_backtest
 
 sg.theme('BlueMono')
 
@@ -93,8 +94,7 @@ def make_window():
     cointegration_layout = [[sg.Text('Check for cointegrated pairs')],
                      [sg.Text('Enter JSON filename with pairs from the previous window')],
                      [sg.Button('Browse File')],
-                     #[sg.Input(key='filename_from_cointegration')],
-                     [sg.Text('Enter filename to save cointegrated pairs')],
+                     [sg.Text('Enter CSV filename to save cointegrated pairs')],
                      [sg.Input(key='filename_to_cointegration')],
                      [sg.Button('Check Cointegration')]]
     
@@ -105,9 +105,19 @@ def make_window():
                    [sg.Input(key='symbol2')],
                    [sg.Text('Enter JSON filename with pairs from the previous window')],
                    [sg.Button('Browse File')],
-                   [sg.Text('Enter filename to save data for backtest of previous symbols')],
+                   [sg.Text('Enter CSV filename to save data for backtest of previous symbols')],
                    [sg.Input(key='filename_backtest')],               
-                   [sg.Button('Plot')]]
+                   [sg.Button('Plot')],
+                   [sg.Frame('Fast Data Preparing', [
+                       [sg.Text('Run data preparation for backtest with top 10 pairs of cointegration file')],
+                       [sg.Text('CSV File with cointegration data')],
+                       [sg.Button('Browse cointegration CSV')],
+                       [sg.Text('CSV filename for save top 10 pairs')],
+                       [sg.Input(key='csv_top10')],
+                       [sg.Button('Fast Backtest')]
+                       ])
+                    ]
+                   ]
     
     csv_preview_layout = [[sg.Text('Browse CSV file you want to preview')],
                           [sg.Button('Browse CSV')]]
@@ -167,76 +177,148 @@ def main():
                      '- Check for cointegration',
                      '- Crete a file with cointegration data for backtesting', keep_on_top=True) 
         elif event == 'Get Symbols':
-            print(style.GREEN)
-            print('Getting symbols...')
-            print(style.WHITE)  
-            # Get tradeable symbols
-            symbols_response = get_tradeable_symbols()
-            file_name = values['filename_symbols']
-            
-            print(style.GREEN)
-            print('Constructing and saving data price to JSON...')
-            print(style.WHITE) 
-            # Store prices in JSON file
-            if len(symbols_response) > 0:
-                store_price_history(symbols_response, file_name)
-            else:
+            try:
+                print(style.GREEN)
+                print('Getting symbols...')
+                print(style.WHITE)  
+                # Get tradeable symbols
+                symbols_response = get_tradeable_symbols()
+                file_name = values['filename_symbols']
+                
+                print(style.GREEN)
+                print('Constructing and saving data price to JSON...')
+                print(style.WHITE) 
+                # Store prices in JSON file
+                if len(symbols_response) > 0:
+                    store_price_history(symbols_response, file_name)
+                else:
+                    print(style.RED)
+                    print(f'Found {len(symbols_response)} tradeable items')
+                    print(style.WHITE)
+            except Exception as e:
                 print(style.RED)
-                print(f'Found {len(symbols_response)} tradeable items')
+                print(f'Something went wrong, please try again {e}')
                 print(style.WHITE)
+                pass
         elif event == 'Browse File':
             file_from = sg.popup_get_file('Choose your file', no_window=True, file_types=(('JSON Files','*.json'),)) 
         elif event == 'Browse File1':
-            file_from = sg.popup_get_file('Choose your file', no_window=True, file_types=(('JSON Files','*.json'),))  
+            file_from = sg.popup_get_file('Choose your file', no_window=True, file_types=(('JSON Files','*.json'),))
+        elif event == 'Browse cointegration CSV':
+            csv_coint = sg.popup_get_file('Choose your file', no_window=True, file_types=(('CSV Files','*.csv'),))
         elif event == 'Browse CSV':
-            table_csv()        
+            try:
+                table_csv()        
+            except Exception as e:
+                print(style.RED)
+                print(f'Something went wrong, please try again {e}')
+                print(style.WHITE)
+                pass
         elif event == 'Browse file':
             file_csv = sg.popup_get_file('Choose your file', no_window=True, file_types=(('CSV Files','*.csv'),))       
         elif event == 'Check Cointegration':
-            file_name = values['filename_to_cointegration']
-
-            print(style.BLUE)
-            print(f'Calculating cointegration for data in file {str(file_from)}...')
-            print(style.WHITE) 
-            
-            file_name = values['filename_to_cointegration']
-            # Open price list for cointegration review
-            with open(f'{file_from}', 'r') as file:
-                price_data = json.load(file)
+            try:
+                print(style.BLUE)
+                print(f'Calculating cointegration for data in file {str(file_from)}...')
+                print(style.WHITE) 
                 
-                if len(price_data) > 0:
-                    cointegrated_pairs = get_cointegrated_pairs(price_data, file_name)
-                    print(style.GREEN)
-                    print(f'Data computed succesfully! Saved in {file_name}')
-                    print(style.WHITE)
-                else:
-                    print(style.RED)
-                    print('Something went wrong with your list of prices! Check JSON file')
-                    print(style.WHITE)  
+                file_name = values['filename_to_cointegration']
+                
+                # Open price list for cointegration review
+                with open(f'{file_from}', 'r') as file:
+                    price_data = json.load(file)
+                    
+                    if len(price_data) > 0:
+                        cointegrated_pairs = get_cointegrated_pairs(price_data, file_name)
+                        print(style.GREEN)
+                        print(f'Data computed succesfully! Saved in {file_name}')
+                        print(style.WHITE)
+                    else:
+                        print(style.RED)
+                        print('Something went wrong with your list of prices! Check JSON file')
+                        print(style.WHITE)
+            except Exception as e:
+                print(style.RED)
+                print(f'Something went wrong, please try again {e}')
+                print(style.WHITE)
+                pass  
         elif event == 'Plot':
-            # Plot trends for backtesting
-            print(style.BLUE)
-            print('Plotting trends...')
-            print(style.WHITE)
-            
-            symbol1 = values['symbol1']
-            symbol2 = values['symbol2']
-            file_name = values['filename_backtest']
-            
-            print(style.BLUE)
-            print(f'Plotting trends for {symbol1}-{symbol2}')
-            print(style.WHITE)
-            # Open JSON file with price data
-            with open(file_from, 'r') as file:
-                price_data = json.load(file)
-                if len(price_data) > 0:
-                    plot(symbol1, symbol2, price_data, file_name)            
+            try:
+                # Plot trends for backtesting
+                print(style.BLUE)
+                print('Plotting trends...')
+                print(style.WHITE)
+                symbol1 = values['symbol1']
+                symbol2 = values['symbol2']
+                file_name = values['filename_backtest']
+                
+                print(style.BLUE)
+                print(f'Plotting trends for {symbol1}-{symbol2}')
+                print(style.WHITE)
+                # Open JSON file with price data
+                with open(file_from, 'r') as file:
+                    price_data = json.load(file)
+                    if len(price_data) > 0:
+                        plot(symbol1, symbol2, price_data, file_name)   
+            except Exception as e:
+                print(style.RED)
+                print(f'Something went wrong, please try again {e}')
+                print(style.WHITE)
+                pass     
+        elif event == 'Fast Backtest':
+            try:
+                df_coint = pd.read_csv(csv_coint)
+                df_coint['symbol'] = df_coint['symbol'].astype('string')
+                df_coint['sec_symbol'] = df_coint['sec_symbol'].astype('string')
+                
+                print(style.BLUE)
+                print('Preparing data for backtesting with top 10 pairs')
+                print(style.WHITE)
+                
+                best = df_coint.head(10)
+                filename_top10 = values['csv_top10']
+                best.to_csv(filename_top10)
+                
+                for i in range(1, 10):
+                    
+                    symbol1_row = best.iloc[i, 1]
+                    symbol2_row = best.iloc[i, 2]                    
+                    
+                    print(style.BLUE)
+                    print('Plotting trends...')
+                    print(style.WHITE)
+                    
+                    print(style.BLUE)
+                    print(f'Plotting trends for {symbol1_row}-{symbol2_row}')
+                    print(style.WHITE)
+                    
+                    # Open JSON file with price data
+                    with open(file_from, 'r') as file:
+                        price_data = json.load(file)
+                        if len(price_data) > 0:
+                            save_data_backtest(symbol1_row, symbol2_row, price_data, f'{symbol1_row}_{symbol2_row}.csv')                     
+
+                print(style.BLUE)
+                print('Fast backtest finished...')
+                print(style.WHITE)
+                    
+            except Exception as e:     
+                print(style.RED)
+                print(f'Something went wrong, please try again {e}')
+                print(style.WHITE)
+                pass                              
         elif event == 'Update data':
             # Update data in backtest tab
-            update_data(file_csv)
-            print(style.GREEN)
-            print('Data updated - ' + file_csv)
-            print(style.WHITE)
+            try:
+                update_data(file_csv)
+                print(style.GREEN)
+                print('Data updated - ' + file_csv)
+                print(style.WHITE)
+            except Exception as e:
+                print(style.RED)
+                print(f'Something went wrong, please try again {e}')
+                print(style.WHITE)
+                pass
         elif event == 'Update values':
             # Update values in backtest tab
             zscore_threshold, trading_capital, rebate, slippage_assumption, long_when_zscore_negative, many_opens = values['z_score_threshold'], values['trading_capital'], values['rebate'], values['slippage_assumption'], values['symbol_option'], values['many_opens_option']
@@ -245,7 +327,13 @@ def main():
             print('Values updated')
             print(style.WHITE)
         elif event == 'Run Backtest':
-            table_backtest()
+            try:
+                table_backtest()
+            except Exception as e:
+                print(style.RED)
+                print(f'Something went wrong, please try again {e}')
+                print(style.WHITE)
+                pass
             
     window.close()
     exit(0)              
