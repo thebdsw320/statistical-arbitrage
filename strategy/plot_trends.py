@@ -79,3 +79,34 @@ def plot(symbol1, symbol2, price_data, filename):
     # print(style.WHITE)
 
     #plt.savefig(f'{symbol1}-{symbol2}.png', dpi=1200)
+
+def save_data_backtest(symbol1, symbol2, price_data, filename):
+    # Extract close prices
+    prices1 = extract_close_prices(price_data[symbol1])
+    prices2 = extract_close_prices(price_data[symbol2])
+    
+    # Get spread and z-score
+    coint_flag, p_value, t_value, c_value, hedge_ratio, zero_crossing = calculate_cointegration(prices1, prices2)
+    spread = calculate_spread(prices1, prices2, hedge_ratio)
+    zscore = calculate_zscore(spread)
+    
+    # Calculate percentage changes 
+    df = pd.DataFrame(columns=[symbol1, symbol2])
+    df[symbol1] = prices1
+    df[symbol2] = prices2
+    df[f'{symbol1}_pct'] = df[symbol1] / prices1[0]
+    df[f'{symbol2}_pct'] = df[symbol2] / prices2[0]
+    
+    series1 = df[f'{symbol1}_pct'].astype(float).values
+    series2 = df[f'{symbol2}_pct'].astype(float).values
+    
+    # Save results for backtesting
+    df2 = pd.DataFrame()
+    df2[symbol1] = prices1
+    df2[symbol2] = prices2
+    df2['spread'] = spread
+    df2['zscore'] = zscore
+    
+    df2 = df2.dropna()
+    
+    df2.to_csv(filename)

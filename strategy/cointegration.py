@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import math, json
+import math, json, csv
 import statsmodels.api as sm
 from statsmodels.tsa.stattools import coint
 

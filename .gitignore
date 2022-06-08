@@ -3,3 +3,4 @@ price_list.json
 .~backtest.xlsx
 /strategy/__pycache__
 /execution/__pycache__
+*.png
